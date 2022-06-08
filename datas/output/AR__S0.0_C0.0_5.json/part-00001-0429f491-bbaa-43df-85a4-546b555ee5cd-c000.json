@@ -1,0 +1,11 @@
+{"antecedent":["I5"],"consequent":["I1"],"confidence":1.0,"lift":2.0,"support":0.25}
+{"antecedent":["I5"],"consequent":["I2"],"confidence":1.0,"lift":1.3333333333333333,"support":0.25}
+{"antecedent":["I2"],"consequent":["I4"],"confidence":0.3333333333333333,"lift":1.3333333333333333,"support":0.25}
+{"antecedent":["I2"],"consequent":["I1"],"confidence":0.3333333333333333,"lift":0.6666666666666666,"support":0.25}
+{"antecedent":["I2"],"consequent":["I3"],"confidence":0.3333333333333333,"lift":0.6666666666666666,"support":0.25}
+{"antecedent":["I2"],"consequent":["I5"],"confidence":0.3333333333333333,"lift":1.3333333333333333,"support":0.25}
+{"antecedent":["I4"],"consequent":["I2"],"confidence":1.0,"lift":1.3333333333333333,"support":0.25}
+{"antecedent":["I1"],"consequent":["I2"],"confidence":0.5,"lift":0.6666666666666666,"support":0.25}
+{"antecedent":["I1"],"consequent":["I3"],"confidence":0.5,"lift":1.0,"support":0.25}
+{"antecedent":["I1"],"consequent":["I5"],"confidence":0.5,"lift":2.0,"support":0.25}
+{"antecedent":["I1","I2"],"consequent":["I5"],"confidence":1.0,"lift":4.0,"support":0.25}
