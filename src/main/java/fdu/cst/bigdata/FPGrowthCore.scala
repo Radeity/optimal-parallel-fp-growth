@@ -16,9 +16,9 @@ import scala.collection.JavaConverters._
  * @date 2022/6/10 11:16 AM
  * @version 1.0
  */
-class FPGrowthModel[Item: ClassTag](val freqItemsets: RDD[FreqItemset[Item]],
+class FPGrowthModel1[Item: ClassTag](val freqItemsets: RDD[FreqItemset[Item]],
                                     val itemSupport: Map[Item, Double]) extends Serializable {
-
+  def this(freqItemsets: RDD[FreqItemset[Item]]) = this(freqItemsets, Map.empty)
 }
 
 class FPGrowthCore(private var minSupport: Double,
@@ -46,7 +46,7 @@ class FPGrowthCore(private var minSupport: Double,
    * @return an [[FPGrowthModel]]
    *
    */
-  def run[Item: ClassTag](data: RDD[Array[Item]]): FPGrowthModel[Item] = {
+  def run[Item: ClassTag](data: RDD[Array[Item]]): FPGrowthModel1[Item] = {
     if (data.getStorageLevel == StorageLevel.NONE) {
       logWarning("Input data is not cached.")
     }
@@ -59,7 +59,7 @@ class FPGrowthCore(private var minSupport: Double,
     val itemSupport = freqItemsCount.map {
       case (item, cnt) => item -> cnt.toDouble / count
     }.toMap
-    new FPGrowthModel(freqItemsets, itemSupport)
+    new FPGrowthModel1(freqItemsets, itemSupport)
   }
 
   /**

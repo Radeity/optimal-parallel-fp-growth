@@ -1,4 +1,0 @@
-{"antecedent":["I5"],"consequent":["I1"],"confidence":1.0,"lift":2.0,"support":0.25}
-{"antecedent":["I5"],"consequent":["I2"],"confidence":1.0,"lift":1.3333333333333333,"support":0.25}
-{"antecedent":["I4"],"consequent":["I2"],"confidence":1.0,"lift":1.3333333333333333,"support":0.25}
-{"antecedent":["I1","I2"],"consequent":["I5"],"confidence":1.0,"lift":4.0,"support":0.25}

@@ -28,7 +28,7 @@ class FPGrowthParams {
 }
 
 
-class FPGrowth1(val uid: String) extends FPGrowthParams {
+class FPGrowth(val uid: String) extends FPGrowthParams {
 
   def this() = this("fpgrowth_" + UUID.randomUUID().toString.takeRight(12))
 
@@ -52,12 +52,12 @@ class FPGrowth1(val uid: String) extends FPGrowthParams {
     this
   }
 
-  def fit(dataset: Dataset[_]): FPGrowthModel1 = {
+  def fit(dataset: Dataset[_]): FPGrowthModel = {
     genericFit(dataset)
   }
 
 
-  def genericFit[T: ClassTag](dataset: Dataset[_]): FPGrowthModel1 = {
+  def genericFit[T: ClassTag](dataset: Dataset[_]): FPGrowthModel = {
     val handlePersistence = dataset.storageLevel == StorageLevel.NONE
     val data = dataset.select(itemsCol)
     val items = data.where(col(itemsCol).isNotNull).rdd.map(r => r.getSeq[Any](0).toArray)
@@ -76,11 +76,11 @@ class FPGrowth1(val uid: String) extends FPGrowthParams {
     if (handlePersistence) {
       items.unpersist()
     }
-    new FPGrowthModel1(uid, frequentItems, parentModel.itemSupport, inputRowCount).setMinConfidence(minConfidence)
+    new FPGrowthModel(uid, frequentItems, parentModel.itemSupport, inputRowCount).setMinConfidence(minConfidence)
   }
 }
 
-class FPGrowthModel1(
+class FPGrowthModel(
                       val uid: String,
                       @transient val freqItemsets: DataFrame,
                       private val itemSupport: scala.collection.Map[Any, Double],
@@ -140,14 +140,15 @@ class FPGrowthModel1(
     val udf_predict = udf((items: Seq[Any]) => {
       if (items != null) {
         val itemset = items.toSet
-        brRules.value.filter(_._1.forall(itemset.contains))
-          .flatMap(_._2.filter(!itemset.contains(_))).toString //.distinct.sortBy(_._3)(Ordering.Double.reverse)
+        brRules.value.filter(_._1.forall(itemset.contains)).sortBy(_._3)(Ordering.Double.reverse)
+          .flatMap(_._2.filter(!itemset.contains(_))).distinct.mkString(", ")
       } else {
-        ""
+        null
       }
     })
     dataset.withColumn(predictionCol, udf_predict(col(itemsCol)))
   }
+
 }
 
 object AssociationRules {
