@@ -1,0 +1,6 @@
+{"items":["I1"],"prediction":"I5, I3, I2"}
+{"items":["I2"],"prediction":"I4, I5, I3, I1"}
+{"items":["I3"],"prediction":"I1, I2"}
+{"items":["I4"],"prediction":"I2"}
+{"items":["I5"],"prediction":"I1, I2"}
+{"items":["I6"],"prediction":""}

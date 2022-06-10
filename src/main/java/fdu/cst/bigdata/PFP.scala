@@ -43,7 +43,7 @@ object PFP {
 
     val testset =spark.read.textFile(test_path).map(t => t.split(" ").distinct).toDF("items")
 
-    val fpgrowth = new FPGrowth().setItemsCol("items").setMinSupport(support).setMinConfidence(confidence).setNumPartitions(4)
+    val fpgrowth = new FPGrowth().setItemsCol("items").setMinSupport(support).setMinConfidence(confidence).setNumPartitions(2)
     val model = fpgrowth.fit(trainset)
 
 

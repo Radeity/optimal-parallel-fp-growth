@@ -55,7 +55,9 @@ class FPGrowthCore(private var minSupport: Double,
     val numParts = if (numPartitions > 0) numPartitions else data.partitions.length
     val partitioner = new HashPartitioner(numParts)
     val freqItemsCount = genFreqItems(data, minCount, partitioner)
-    val freqItemsets = genFreqItemsets(data, minCount, freqItemsCount.map(_._1), partitioner)
+    val freqRank = freqItemsCount.map(_._1)
+    val balancedPartitioner = new BalancedPartitioner(numParts, freqRank.length)
+    val freqItemsets = genFreqItemsets(data, minCount, freqRank, balancedPartitioner)
     val itemSupport = freqItemsCount.map {
       case (item, cnt) => item -> cnt.toDouble / count
     }.toMap
@@ -98,7 +100,7 @@ class FPGrowthCore(private var minSupport: Double,
                                                minCount: Long,
                                                freqItems: Array[Item],
                                                partitioner: Partitioner): RDD[FreqItemset[Item]] = {
-    val itemToRank = freqItems.zipWithIndex.toMap
+    val itemToRank: Map[Item, Int] = freqItems.zipWithIndex.toMap
     data.flatMap { transaction =>
       genCondTransactions(transaction, itemToRank, partitioner)
     }.aggregateByKey(new FPTree[Int], partitioner.numPartitions)(
