@@ -1,4 +1,4 @@
-package fdu.cst.bigdata
+package fdu.cst.bigdata.epfp
 
 import org.apache.spark.Partitioner
 

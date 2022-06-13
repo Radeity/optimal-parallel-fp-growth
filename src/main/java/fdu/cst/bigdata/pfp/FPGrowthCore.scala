@@ -1,14 +1,15 @@
-package fdu.cst.bigdata
+package fdu.cst.bigdata.pfp
 
-import fdu.cst.bigdata.FPGrowthCore.FreqItemset
-import org.apache.spark.{HashPartitioner, Partitioner, SparkException}
+import fdu.cst.bigdata.pfp.FPGrowthCore.FreqItemset
 import org.apache.spark.internal.Logging
 import org.apache.spark.rdd.RDD
 import org.apache.spark.storage.StorageLevel
+import org.apache.spark.{HashPartitioner, Partitioner, SparkException}
+
 import java.{util => ju}
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.reflect.ClassTag
-import scala.collection.JavaConverters._
 
 
 /**
@@ -55,9 +56,7 @@ class FPGrowthCore(private var minSupport: Double,
     val numParts = if (numPartitions > 0) numPartitions else data.partitions.length
     val partitioner = new HashPartitioner(numParts)
     val freqItemsCount = genFreqItems(data, minCount, partitioner)
-    val freqRank = freqItemsCount.map(_._1)
-    val balancedPartitioner = new BalancedPartitioner(numParts, freqRank.length)
-    val freqItemsets = genFreqItemsets(data, minCount, freqRank, balancedPartitioner)
+    val freqItemsets = genFreqItemsets(data, minCount, freqItemsCount.map(_._1), partitioner)
     val itemSupport = freqItemsCount.map {
       case (item, cnt) => item -> cnt.toDouble / count
     }.toMap

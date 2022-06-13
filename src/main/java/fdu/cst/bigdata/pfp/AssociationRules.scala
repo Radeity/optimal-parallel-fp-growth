@@ -1,7 +1,7 @@
-package fdu.cst.bigdata
+package fdu.cst.bigdata.pfp
 
-import fdu.cst.bigdata.PMAssociationRules.Rule
-import fdu.cst.bigdata.FPGrowthCore.FreqItemset
+import fdu.cst.bigdata.pfp.FPGrowthCore.FreqItemset
+import fdu.cst.bigdata.pfp.PMAssociationRules.Rule
 import org.apache.spark.internal.Logging
 import org.apache.spark.rdd.RDD
 

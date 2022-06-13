@@ -1,6 +1,6 @@
-package fdu.cst.bigdata
+package fdu.cst.bigdata.epfp
 
-import fdu.cst.bigdata.FPGrowthCore.FreqItemset
+import fdu.cst.bigdata.epfp.FPGrowthCore.FreqItemset
 import org.apache.spark.sql.functions.{col, udf}
 import org.apache.spark.sql.types.{DoubleType, LongType, StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
