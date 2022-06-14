@@ -24,7 +24,7 @@ object Apriori extends App {
   run(slides, support, confidence)
 
   def run(file: String, support: Double, confidence: Double): Unit = {
-    val sparkConf = new SparkConf().setMaster("local").setAppName("WordCount")
+    val sparkConf = new SparkConf().setMaster("local").setAppName("Apriori")
     val sc = new SparkContext(sparkConf)
     getTransactions(file) match {
       case Success(set) => {

@@ -11,7 +11,7 @@ object EPFP {
   def main(args: Array[String]): Unit = {
     val spark = SparkSession
       .builder()
-      .appName("PFP")
+      .appName("EPFP")
       .master("local")
       .getOrCreate()
 
