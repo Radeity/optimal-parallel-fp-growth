@@ -30,12 +30,11 @@ object EPFP {
     val start = System.currentTimeMillis
     val fpgrowth = new FPGrowth().setItemsCol("items").setMinSupport(support).setMinConfidence(confidence).setNumPartitions(2)
     val model = fpgrowth.fit(trainset)
-    val resultDF = model.transform(testset)
-
     val totalTime = System.currentTimeMillis - start
     println("Elapsed time: %1d ms".format(totalTime))
+    val resultDF = model.transform(testset)
 
-    resultDF.rdd.map(r => (r.getSeq[String](0).toList, List(r(1).toString))).map(r => (r._1.head, r._2.head)).collect().foreach(printRule)
+    resultDF.rdd.map(r => (r.getSeq[String](0).mkString(", "), r(1).toString)).collect().foreach(printRule)
   }
 
   def printRule(rule: (String, String)): Unit = {

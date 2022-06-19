@@ -17,25 +17,26 @@ object PFP {
 
     import spark.implicits._
 
-    val support = 0.1
-    val confidence = 0.1
+    val support = 0
+    val confidence = 0
     val train_path = "datas/train.txt" //"datas/"+transactionsFile
     val test_path = "datas/test.txt" //"datas/"+testFile
 
+    // split words by space
     val trainset = spark.read.textFile(train_path).map(t => t.split(" ").distinct).toDF("items")
     val testset = spark.read.textFile(test_path).map(t => t.split(" ").distinct).toDF("items")
-
     println("Running with support: " + support + ", and confidence: " + confidence)
 
     val start = System.currentTimeMillis
     val fpgrowth = new FPGrowth().setItemsCol("items").setMinSupport(support).setMinConfidence(confidence).setNumPartitions(2)
-    val model = fpgrowth.fit(trainset)
-    val resultDF = model.transform(testset)
-
+    val model: FPGrowthModel = fpgrowth.fit(trainset)
     val totalTime = System.currentTimeMillis - start
     println("Elapsed time: %1d ms".format(totalTime))
-
-    resultDF.rdd.map(r => (r.getSeq[String](0).toList, List(r(1).toString))).map(r => (r._1.head, r._2.head)).collect().foreach(printRule)
+//    model.freqItemsets.show()
+//    model.associationRules.show(50)
+    val resultDF = model.transform(testset)
+//    resultDF.show()
+    resultDF.rdd.map(r => (r.getSeq[String](0).mkString(", "), r(1).toString)).collect().foreach(printRule)
   }
 
   def printRule(rule: (String, String)): Unit = {

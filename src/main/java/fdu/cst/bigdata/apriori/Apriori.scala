@@ -17,9 +17,9 @@ object Apriori extends App {
   type FrequentItemSets = List[Item]
   type AssociationRule = (ItemSet, ItemSet, Double)
 
-  val slides = "datas/train.txt"
-  val support = 0.1
-  val confidence = 0.1
+  val slides = "datas/sougou_sample.txt"
+  val support = 0.01
+  val confidence = 0.01
 
   run(slides, support, confidence)
 
@@ -32,9 +32,10 @@ object Apriori extends App {
         val start = System.currentTimeMillis
         val frequencyMap = getFrequencyMap(set)
         val frequentItems = getFrequentItemSets(frequencyMap, set, support)
-        val twoSizeRules = generateAssociationRules(sc, frequencyMap, frequentItems, confidence)
         val totalTime = System.currentTimeMillis - start
         println("Elapsed time: %1d ms".format(totalTime))
+
+        val twoSizeRules = generateAssociationRules(sc, frequencyMap, frequentItems, confidence)
         twoSizeRules.foreach(printRule)
       }
       case Failure(e) => println(e.getMessage)
@@ -124,6 +125,7 @@ object Apriori extends App {
     val filterRulesRDD: RDD[(String, List[(String, String, Double)])] = sc.parallelize(filterRules)
     val reduceRDD: RDD[(String, List[(String, String, Double)])] = filterRulesRDD.reduceByKey(_ ::: _)
     val sortRDD: RDD[(String, List[(String, String, Double)])] = reduceRDD.map(rule => (rule._1, rule._2.sortBy(_._3)(Ordering.Double.reverse)))
+
     sortRDD.collect()
   }
 

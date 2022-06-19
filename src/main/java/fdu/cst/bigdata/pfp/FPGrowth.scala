@@ -1,9 +1,10 @@
 package fdu.cst.bigdata.pfp
 
 import fdu.cst.bigdata.pfp.FPGrowthCore.FreqItemset
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.functions.{col, udf}
 import org.apache.spark.sql.types.{DoubleType, LongType, StructField, StructType}
-import org.apache.spark.sql.{DataFrame, Dataset, Row}
+import org.apache.spark.sql.{DataFrame, Dataset, Row, SparkSession}
 import org.apache.spark.storage.StorageLevel
 
 import java.util.UUID
@@ -81,10 +82,10 @@ class FPGrowth(val uid: String) extends FPGrowthParams {
 }
 
 class FPGrowthModel(
-                      val uid: String,
-                      @transient val freqItemsets: DataFrame,
-                      private val itemSupport: scala.collection.Map[Any, Double],
-                      private val numTrainingRecords: Long) extends FPGrowthParams {
+                     val uid: String,
+                     @transient val freqItemsets: DataFrame,
+                     private val itemSupport: scala.collection.Map[Any, Double],
+                     private val numTrainingRecords: Long) extends FPGrowthParams {
 
   /**
    * Cache minConfidence and associationRules to avoid redundant computation for association rules
@@ -120,22 +121,50 @@ class FPGrowthModel(
     genericTransform(dataset)
   }
 
+  def transform(spark: SparkSession): DataFrame = {
+    genericTransform(spark: SparkSession)
+  }
+
+  def genericTransform(spark: SparkSession): DataFrame = {
+    import spark.implicits._
+    val rules: Array[(Seq[String], Seq[Any], Double)] = associationRules.select("antecedent", "consequent", "lift")
+      .rdd.map(r => (r.getSeq(0), r.getSeq(1), r.getDouble(2)))
+      .collect().asInstanceOf[Array[(Seq[String], Seq[Any], Double)]]
+
+    val distinctItems = spark.sparkContext.makeRDD(rules.map(_._1).distinct).toDF("items")
+    // broadcast brRules to every nodes to support parallel udf_predict
+    val brRules = distinctItems.sparkSession.sparkContext.broadcast(rules)
+    val dt = distinctItems.schema(itemsCol).dataType
+    val udf_predict = udf((items: Seq[Any]) => {
+      if (items != null) {
+        val itemset = items.toSet
+        brRules.value.filter(_._1.forall(itemset.contains)).sortBy(_._3)(Ordering.Double.reverse)
+          .flatMap(_._2.filter(!itemset.contains(_))).distinct.mkString(", ")
+      } else {
+        null
+      }
+    })
+    distinctItems.withColumn(predictionCol, udf_predict(col(itemsCol)))
+  }
+
   def genericTransform(dataset: Dataset[_]): DataFrame = {
     val rules: Array[(Seq[Any], Seq[Any], Double)] = associationRules.select("antecedent", "consequent", "lift")
       .rdd.map(r => (r.getSeq(0), r.getSeq(1), r.getDouble(2)))
       .collect().asInstanceOf[Array[(Seq[Any], Seq[Any], Double)]]
     val brRules = dataset.sparkSession.sparkContext.broadcast(rules)
+
     val dt = dataset.schema(itemsCol).dataType
+
     // For each rule, examine the input items and summarize the consequents
-//    def predictUDF(items: Seq[Any]) = {
-//      if (items != null) {
-//        val itemset = items.toSet
-//        brRules.value.filter(_._1.forall(itemset.contains))
-//          .flatMap(_._2.filter(!itemset.contains(_))) //.distinct.sortBy(_._3)(Ordering.Double.reverse)
-//      } else {
-//        Seq.empty
-//      }
-//    }
+    //    def predictUDF(items: Seq[Any]) = {
+    //      if (items != null) {
+    //        val itemset = items.toSet
+    //        brRules.value.filter(_._1.forall(itemset.contains))
+    //          .flatMap(_._2.filter(!itemset.contains(_))) //.distinct.sortBy(_._3)(Ordering.Double.reverse)
+    //      } else {
+    //        Seq.empty
+    //      }
+    //    }
 
     val udf_predict = udf((items: Seq[Any]) => {
       if (items != null) {
