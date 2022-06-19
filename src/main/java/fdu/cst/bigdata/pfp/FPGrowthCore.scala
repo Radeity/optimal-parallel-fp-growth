@@ -1,7 +1,6 @@
 package fdu.cst.bigdata.pfp
 
 import fdu.cst.bigdata.pfp.FPGrowthCore.FreqItemset
-import org.apache.spark.internal.Logging
 import org.apache.spark.rdd.RDD
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.{HashPartitioner, Partitioner, SparkException}
@@ -23,7 +22,7 @@ class FPGrowthModel1[Item: ClassTag](val freqItemsets: RDD[FreqItemset[Item]],
 }
 
 class FPGrowthCore(private var minSupport: Double,
-                   private var numPartitions: Int) extends Logging with Serializable {
+                   private var numPartitions: Int) extends Serializable {
 
   def this() = this(0.3, -1)
 
@@ -48,9 +47,9 @@ class FPGrowthCore(private var minSupport: Double,
    *
    */
   def run[Item: ClassTag](data: RDD[Array[Item]]): FPGrowthModel1[Item] = {
-    if (data.getStorageLevel == StorageLevel.NONE) {
-      logWarning("Input data is not cached.")
-    }
+//    if (data.getStorageLevel == StorageLevel.NONE) {
+//      logWarning("Input data is not cached.")
+//    }
     val count = data.count()
     val minCount = math.ceil(minSupport * count).toLong
     val numParts = if (numPartitions > 0) numPartitions else data.partitions.length

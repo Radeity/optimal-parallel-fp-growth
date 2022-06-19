@@ -152,7 +152,6 @@ class FPGrowthModel(
       .rdd.map(r => (r.getSeq(0), r.getSeq(1), r.getDouble(2)))
       .collect().asInstanceOf[Array[(Seq[Any], Seq[Any], Double)]]
     val brRules = dataset.sparkSession.sparkContext.broadcast(rules)
-
     val dt = dataset.schema(itemsCol).dataType
 
     // For each rule, examine the input items and summarize the consequents

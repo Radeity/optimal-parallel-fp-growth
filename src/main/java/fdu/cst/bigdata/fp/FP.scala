@@ -14,7 +14,7 @@ object FP {
     val spark = SparkSession
       .builder()
       .appName("FP")
-      .master("local")
+//      .master("local")
       .getOrCreate()
 
     import spark.implicits._
@@ -43,15 +43,12 @@ object FP {
   def printRule(rule: (String, String)): Unit = {
     print("[" + rule._1 + "] ")
     val candidates = rule._2.split(",")
-    if (candidates.size != 1) {
-      for (i <- candidates.indices) {
-        print("["+ rule._1 + ", " + candidates(i).trim + "]")
-        if (i != candidates.size - 1) {
-          print(", ")
-        } else {
-          println()
-        }
+    for (i <- candidates.indices) {
+      print("["+ rule._1 + ", " + candidates(i).trim + "]")
+      if (i != candidates.size - 1) {
+        print(", ")
       }
     }
+    println()
   }
 }
