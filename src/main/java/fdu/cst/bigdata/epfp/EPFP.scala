@@ -19,8 +19,9 @@ object EPFP {
 
     val support = args(1).toDouble //0.01
     val confidence = args(2).toDouble //0.01
-    val train_path = "datas/train.txt" //"datas/"+transactionsFile
-    val test_path = "datas/test.txt" //"datas/"+testFile
+
+    val train_path = "datas/sougou_sample.txt"
+    val test_path = "datas/sougou_test.txt"
 
     val trainset = spark.read.textFile(train_path).map(t => t.split(" ").distinct).toDF("items")
     val testset = spark.read.textFile(test_path).map(t => t.split(" ").distinct).toDF("items")
