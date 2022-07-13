@@ -29,7 +29,7 @@ object Apriori {
   def run(file: String, support: Double, confidence: Double): Unit = {
     val sparkConf = new SparkConf().setMaster("local").setAppName("Apriori")
     val sc = new SparkContext(sparkConf)
-    getTransactions(file) match {
+    getTransactions(sc, file) match {
       case Success(set) => {
         println("Running with support: " + support + ", and confidence: " + confidence)
         val start = System.currentTimeMillis
@@ -58,11 +58,8 @@ object Apriori {
     }
   }
 
-  def getTransactions(file: String): Try[Transaction] = Try {
-    Source.fromFile(file)
-      .getLines()
-      .map(_.split(" ").toSet)
-      .toList
+  def getTransactions(sc: SparkContext, file: String): Try[Transaction] = Try {
+    sc.textFile(file).map(_.split(" ").toSet).collect().toList
   }
 
   def getFrequencyMap(transaction: Transaction) = {
