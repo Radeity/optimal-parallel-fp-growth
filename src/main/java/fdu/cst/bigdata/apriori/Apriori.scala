@@ -8,7 +8,7 @@ import scala.io.Source
 import scala.util.control.Breaks.{break, breakable}
 import scala.util.{Failure, Success, Try}
 
-object Apriori extends App {
+object Apriori {
   type ItemSet = Set[String]
 
   case class Item(set: ItemSet, support: Int)
@@ -17,11 +17,14 @@ object Apriori extends App {
   type FrequentItemSets = List[Item]
   type AssociationRule = (ItemSet, ItemSet, Double)
 
-  val slides = "datas/sougou_sample.txt"
-  val support = 0.01
-  val confidence = 0.01
+  def main(args: Array[String]): Unit = {
+    val slides = "datas/sougou_sample.txt"
+    val support = args(0).toDouble // 0.01
+    val confidence = args(1).toDouble // 0.01
 
-  run(slides, support, confidence)
+    run(slides, support, confidence)
+  }
+
 
   def run(file: String, support: Double, confidence: Double): Unit = {
     val sparkConf = new SparkConf().setMaster("local").setAppName("Apriori")
@@ -125,7 +128,6 @@ object Apriori extends App {
     val filterRulesRDD: RDD[(String, List[(String, String, Double)])] = sc.parallelize(filterRules)
     val reduceRDD: RDD[(String, List[(String, String, Double)])] = filterRulesRDD.reduceByKey(_ ::: _)
     val sortRDD: RDD[(String, List[(String, String, Double)])] = reduceRDD.map(rule => (rule._1, rule._2.sortBy(_._3)(Ordering.Double.reverse)))
-
     sortRDD.collect()
   }
 

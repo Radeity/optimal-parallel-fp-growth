@@ -19,8 +19,8 @@ object FP {
 
     import spark.implicits._
 
-    val support = 0.1
-    val confidence = 0.1
+    val support = args(0).toDouble // 0.1
+    val confidence = args(1).toDouble // 0.1
     val train_path = "datas/train.txt" //"datas/"+transactionsFile
     val test_path = "datas/test.txt" //"datas/"+testFile
 
