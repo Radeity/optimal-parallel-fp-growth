@@ -27,7 +27,8 @@ object Apriori {
 
 
   def run(file: String, support: Double, confidence: Double): Unit = {
-    val sparkConf = new SparkConf().setMaster("local").setAppName("Apriori")
+//    val sparkConf = new SparkConf().setMaster("local").setAppName("Apriori")
+    val sparkConf = new SparkConf().setAppName("Apriori")
     val sc = new SparkContext(sparkConf)
     getTransactions(sc, file) match {
       case Success(set) => {
